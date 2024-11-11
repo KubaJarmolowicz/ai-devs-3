@@ -15,11 +15,14 @@
   "dependencies": {
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
+    "openai": "^4.71.1",
+    "puppeteer": "^23.7.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",
-    "@types/node": "^22.9.0"
+    "@types/node": "^22.9.0",
+    "@types/puppeteer": "^5.4.7"
   }
 }
