@@ -29,4 +29,21 @@ export class OpenAIService {
 
     return completion.choices[0].message.content || "";
   }
+
+  async getAnswers(questions: string[]): Promise<string[]> {
+    const prompt = `Please answer these questions concisely and accurately:
+${questions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
+
+Provide answers in a simple array format, one answer per line.`;
+
+    const response = await this.openai.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "gpt-3.5-turbo",
+    });
+
+    return response.choices[0].message
+      .content!.split("\n")
+      .filter((line) => line.trim())
+      .map((line) => line.replace(/^\d+\.\s*/, "").trim());
+  }
 }
