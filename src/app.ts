@@ -3,7 +3,7 @@ import { runPoligon } from "./tasks/poligon";
 import { runXYZChallenge } from "./tasks/xyz-challenge";
 import { runVerifyAgent } from "./tasks/verify-agent";
 import { runJsonChallenge } from "./tasks/json-challenge";
-
+import { runCensorship } from "./tasks/censorship";
 dotenv.config();
 
 async function main() {
@@ -12,7 +12,8 @@ async function main() {
     // await runPoligon();
     // await runXYZChallenge();
     // await runVerifyAgent();
-    await runJsonChallenge();
+    // await runJsonChallenge();
+    await runCensorship();
   } catch (error) {
     console.error("Error:", error);
   }
