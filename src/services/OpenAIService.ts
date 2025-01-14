@@ -116,4 +116,32 @@ Provide answers in a simple array format, one answer per line.`;
 
     return response.choices[0].message.content || "";
   }
+
+  async generateImage(description: string): Promise<string> {
+    const response = await this.openai.images.generate({
+      model: "dall-e-3",
+      prompt: description,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      response_format: "url",
+    });
+
+    if (!response.data[0].url) throw new Error("No image URL received");
+    return response.data[0].url;
+  }
+
+  async cleanRobotDescription(description: string): Promise<string> {
+    const prompt = `Extract and rewrite ONLY the physical description of the robot from this text, preserving the original language and style. Include only details relevant for creating a visual image:
+
+${description}`;
+
+    const response = await this.openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+    });
+
+    return response.choices[0].message.content || description;
+  }
 }

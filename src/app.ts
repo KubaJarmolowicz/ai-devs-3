@@ -6,6 +6,7 @@ import { runJsonChallenge } from "./tasks/json-challenge";
 import { runCensorship } from "./tasks/censorship";
 import { runMp3 } from "./tasks/mp3";
 import { runMap } from "./tasks/map";
+import { runRobotIdTask } from "./tasks/robotid";
 dotenv.config();
 
 async function main() {
@@ -17,7 +18,8 @@ async function main() {
     // await runJsonChallenge();
     // await runCensorship();
     //await runMp3();
-    await runMap();
+    // await runMap();
+    await runRobotIdTask();
   } catch (error) {
     console.error("Error:", error);
   }
