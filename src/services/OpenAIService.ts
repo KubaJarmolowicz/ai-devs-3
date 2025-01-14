@@ -2,6 +2,33 @@ import { ReadStream } from "fs";
 import { OpenAI } from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat";
 import * as fs from "fs/promises";
+import { createReadStream } from "fs";
+
+interface AnalyzeConfig {
+  fileType: "text" | "image" | "audio";
+  content?: string;
+  filePath?: string;
+}
+
+interface AnalysisResult {
+  people: boolean;
+  hardware: boolean;
+}
+
+const getCategoryAnalysisPrompt = (
+  contentType: string
+) => `Analyze this ${contentType} and determine if it contains:
+1. Information about people being found / captured.
+2. Information/data about hardware repairs. Pay close attention to the meaning of the text, not just the keywords present.
+Improvements and software fixes ARE NOT hardware repairs.
+
+Respond in this exact format:
+{"people": boolean, "hardware": boolean}
+IMPORTANT: ONLY RESPOND WITH THE JSON, NO OTHER TEXT.
+
+Note:
+- For "people": only mark true if there's info about captured individuals or clear evidence of their recent activities
+- For "hardware": only mark true if there's specific info about hardware fixes / repairs`;
 
 export class OpenAIService {
   private openai: OpenAI;
@@ -143,5 +170,98 @@ ${description}`;
     });
 
     return response.choices[0].message.content || description;
+  }
+
+  async analyzeForCategories(config: AnalyzeConfig): Promise<AnalysisResult> {
+    console.log(`Analyzing ${config.fileType} content...`);
+
+    let contentToAnalyze: string = "";
+
+    // Handle different content types
+    switch (config.fileType) {
+      case "text":
+        if (!config.content)
+          throw new Error("Content required for text analysis");
+        contentToAnalyze = config.content;
+        break;
+
+      case "image":
+        if (!config.filePath)
+          throw new Error("File path required for image analysis");
+        const imageContent = {
+          type: "image_url" as const,
+          image_url: {
+            url: `data:image/png;base64,${(
+              await fs.readFile(config.filePath)
+            ).toString("base64")}`,
+          },
+        };
+
+        const imageResponse = await this.openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: getCategoryAnalysisPrompt("image"),
+                },
+                imageContent,
+              ],
+            },
+          ],
+          max_tokens: 100,
+        });
+
+        try {
+          return JSON.parse(
+            imageResponse.choices[0].message.content ||
+              '{"people": false, "hardware": false}'
+          );
+        } catch (e) {
+          console.error(
+            "Failed to parse GPT vision response:",
+            imageResponse.choices[0].message.content
+          );
+          return { people: false, hardware: false };
+        }
+
+      case "audio":
+        if (!config.filePath)
+          throw new Error("File path required for audio analysis");
+        const audioStream = createReadStream(config.filePath);
+        contentToAnalyze = await this.transcribeAudio(audioStream);
+        break;
+    }
+
+    // For text and transcribed audio, analyze the content
+    if (config.fileType === "text" || config.fileType === "audio") {
+      const prompt = `${getCategoryAnalysisPrompt("content")}
+
+Content to analyze:
+${contentToAnalyze}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0,
+      });
+
+      try {
+        return JSON.parse(
+          response.choices[0].message.content ||
+            '{"people": false, "hardware": false}'
+        );
+      } catch (e) {
+        console.error(
+          "Failed to parse GPT response:",
+          response.choices[0].message.content
+        );
+        return { people: false, hardware: false };
+      }
+    }
+
+    throw new Error("Unsupported file type");
   }
 }

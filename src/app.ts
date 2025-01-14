@@ -7,6 +7,7 @@ import { runCensorship } from "./tasks/censorship";
 import { runMp3 } from "./tasks/mp3";
 import { runMap } from "./tasks/map";
 import { runRobotIdTask } from "./tasks/robotid";
+import { runKategorie } from "./tasks/kategorie";
 dotenv.config();
 
 async function main() {
@@ -19,9 +20,10 @@ async function main() {
     // await runCensorship();
     //await runMp3();
     // await runMap();
-    await runRobotIdTask();
+    // await runRobotIdTask();
+    await runKategorie();
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error data:", error);
   }
 }
 
