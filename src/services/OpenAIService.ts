@@ -1,6 +1,7 @@
 import { ReadStream } from "fs";
 import { OpenAI } from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat";
+import * as fs from "fs/promises";
 
 export class OpenAIService {
   private openai: OpenAI;
@@ -77,5 +78,42 @@ Provide answers in a simple array format, one answer per line.`;
       .content!.split("\n")
       .filter((line) => line.trim())
       .map((line) => line.replace(/^\d+\.\s*/, "").trim());
+  }
+
+  async analyzeImages(imagePaths: string[]): Promise<string> {
+    const imageContents = await Promise.all(
+      imagePaths.map(async (path) => ({
+        type: "image_url" as const,
+        image_url: {
+          url: `data:image/png;base64,${(
+            await fs.readFile(path)
+          ).toString("base64")}`,
+        },
+      }))
+    );
+
+    const prompt = `Analyze these maps carefully. Three of them show the same city.
+
+    Your task:
+    1. Focus on identifying the city that appears in three maps
+    2. First, look at what is actually shown on these three matching maps - what streetnames, buildings, named landmarks, intersections do you see?
+    3. Write down all the cities that match the criteria.
+    4. Then, verify one by one if any of these cities contains "spichlerze" (granaries) and "twierdze" (fortresses).
+    5. Name the city and explain why you believe it's the correct one based on what you see in the map.
+
+    Think step by step and explain your reasoning, focusing on the visual evidence first.`;
+
+    const response = await this.openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "user",
+          content: [{ type: "text", text: prompt }, ...imageContents],
+        },
+      ],
+      max_tokens: 1000,
+    });
+
+    return response.choices[0].message.content || "";
   }
 }

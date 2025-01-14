@@ -5,6 +5,7 @@ import { runVerifyAgent } from "./tasks/verify-agent";
 import { runJsonChallenge } from "./tasks/json-challenge";
 import { runCensorship } from "./tasks/censorship";
 import { runMp3 } from "./tasks/mp3";
+import { runMap } from "./tasks/map";
 dotenv.config();
 
 async function main() {
@@ -15,7 +16,8 @@ async function main() {
     // await runVerifyAgent();
     // await runJsonChallenge();
     // await runCensorship();
-    await runMp3();
+    //await runMp3();
+    await runMap();
   } catch (error) {
     console.error("Error:", error);
   }
