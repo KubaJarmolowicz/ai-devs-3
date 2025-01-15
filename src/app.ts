@@ -9,6 +9,7 @@ import { runMap } from "./tasks/map";
 import { runRobotIdTask } from "./tasks/robotid";
 import { runKategorie } from "./tasks/kategorie";
 import { analyzeArxivDraft } from "./tasks/arxiv";
+import { runDokumenty } from "./tasks/dokumenty";
 dotenv.config();
 
 async function main() {
@@ -23,7 +24,8 @@ async function main() {
     // await runMap();
     // await runRobotIdTask();
     //await runKategorie();
-    await analyzeArxivDraft();
+    //await analyzeArxivDraft();
+    await runDokumenty();
   } catch (error) {
     console.error("Error data:", error);
   }
