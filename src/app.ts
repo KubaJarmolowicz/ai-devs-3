@@ -8,6 +8,7 @@ import { runMp3 } from "./tasks/mp3";
 import { runMap } from "./tasks/map";
 import { runRobotIdTask } from "./tasks/robotid";
 import { runKategorie } from "./tasks/kategorie";
+import { analyzeArxivDraft } from "./tasks/arxiv";
 dotenv.config();
 
 async function main() {
@@ -21,7 +22,8 @@ async function main() {
     //await runMp3();
     // await runMap();
     // await runRobotIdTask();
-    await runKategorie();
+    //await runKategorie();
+    await analyzeArxivDraft();
   } catch (error) {
     console.error("Error data:", error);
   }
