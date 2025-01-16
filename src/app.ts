@@ -10,6 +10,7 @@ import { runRobotIdTask } from "./tasks/robotid";
 import { runKategorie } from "./tasks/kategorie";
 import { analyzeArxivDraft } from "./tasks/arxiv";
 import { runDokumenty } from "./tasks/dokumenty";
+import { runWektory } from "./tasks/wektory";
 dotenv.config();
 
 async function main() {
@@ -25,7 +26,8 @@ async function main() {
     // await runRobotIdTask();
     //await runKategorie();
     //await analyzeArxivDraft();
-    await runDokumenty();
+    //await runDokumenty();
+    await runWektory();
   } catch (error) {
     console.error("Error data:", error);
   }

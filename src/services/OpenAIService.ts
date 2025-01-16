@@ -477,4 +477,34 @@ ${content}`;
 
     return response.choices[0].message.content || content;
   }
+
+  async createEmbedding(text: string): Promise<number[]> {
+    try {
+      const response = await this.openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: text,
+        encoding_format: "float",
+      });
+
+      return response.data[0].embedding;
+    } catch (error) {
+      console.error("Error creating embedding:", error);
+      throw error;
+    }
+  }
+
+  async createEmbeddings(texts: string[]): Promise<number[][]> {
+    try {
+      const response = await this.openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: texts,
+        encoding_format: "float",
+      });
+
+      return response.data.map((item) => item.embedding);
+    } catch (error) {
+      console.error("Error creating embeddings:", error);
+      throw error;
+    }
+  }
 }
