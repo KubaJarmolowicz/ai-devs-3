@@ -12,6 +12,7 @@ import { analyzeArxivDraft } from "./tasks/arxiv";
 import { runDokumenty } from "./tasks/dokumenty";
 import { runWektory } from "./tasks/wektory";
 import { runDatabase } from "./tasks/database";
+import { runLoop } from "./tasks/loop";
 dotenv.config();
 
 async function main() {
@@ -29,7 +30,8 @@ async function main() {
     //await analyzeArxivDraft();
     //await runDokumenty();
     //await runWektory();
-    await runDatabase();
+    //await runDatabase();
+    await runLoop();
   } catch (error) {
     console.error("Error data:", error);
   }
