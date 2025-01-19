@@ -145,7 +145,10 @@ ${questions
     return response.choices[0].message.content || "{}";
   }
 
-  async analyzeImages(imagePaths: string[]): Promise<string> {
+  async analyzeImages(
+    imagePaths: string[],
+    customPrompt?: string
+  ): Promise<string> {
     const imageContents = await Promise.all(
       imagePaths.map(async (path) => ({
         type: "image_url" as const,
@@ -157,7 +160,9 @@ ${questions
       }))
     );
 
-    const prompt = `Analyze these maps carefully. Three of them show the same city.
+    const prompt =
+      customPrompt ??
+      `Analyze these maps carefully. Three of them show the same city.
 
     Your task:
     1. Focus on identifying the city that appears in three maps
