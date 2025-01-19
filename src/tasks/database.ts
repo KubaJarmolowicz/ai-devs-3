@@ -37,10 +37,6 @@ Return only the relevant table names as comma-separated values.`;
 
     console.log("Picked tables:", pickedTables);
 
-    // const structureQuery = `show create table ${pickedTables.join(",")}`;
-    // const structure = await dbService.sendQuery<any>(structureQuery);
-    // console.log(`Structure:`, structure);
-
     const structures = [];
 
     for (const table of pickedTables) {
