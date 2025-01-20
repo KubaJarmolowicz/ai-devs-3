@@ -14,6 +14,7 @@ import { runWektory } from "./tasks/wektory";
 import { runDatabase } from "./tasks/database";
 import { runLoop } from "./tasks/loop";
 import { runConnections } from "./tasks/connections";
+import { runPhotos } from "./tasks/photos";
 dotenv.config();
 
 async function main() {
@@ -33,7 +34,8 @@ async function main() {
     //await runWektory();
     //await runDatabase();
     //await runLoop();
-    await runConnections();
+    //await runConnections();
+    await runPhotos();
   } catch (error) {
     console.error("Error data:", error);
   }

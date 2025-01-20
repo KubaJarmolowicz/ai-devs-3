@@ -181,7 +181,8 @@ ${questions
           content: [{ type: "text", text: prompt }, ...imageContents],
         },
       ],
-      max_tokens: 1000,
+      max_tokens: 2000,
+      temperature: 0.7,
     });
 
     return response.choices[0].message.content || "";
@@ -509,6 +510,49 @@ ${content}`;
       return response.data.map((item) => item.embedding);
     } catch (error) {
       console.error("Error creating embeddings:", error);
+      throw error;
+    }
+  }
+
+  async analyzeImagesFromUrls(
+    imageUrls: string | string[],
+    customPrompt: string
+  ): Promise<string> {
+    try {
+      const urls = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+
+      const imageContents = urls.map((url) => ({
+        type: "image_url" as const,
+        image_url: { url },
+      }));
+
+      console.log("Sending request to OpenAI with:", {
+        prompt: customPrompt,
+        urls,
+      });
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [{ type: "text", text: customPrompt }, ...imageContents],
+          },
+        ],
+        max_tokens: 10000,
+        temperature: 0.7,
+      });
+
+      console.log(
+        "Full OpenAI API response:",
+        JSON.stringify(response, null, 2)
+      );
+      console.log("Response content:", response.choices[0].message.content);
+
+      return response.choices[0].message.content || "";
+    } catch (error) {
+      console.error("Error analyzing images:", error);
+      console.error("Full error object:", JSON.stringify(error, null, 2));
       throw error;
     }
   }
