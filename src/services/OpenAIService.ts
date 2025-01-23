@@ -29,6 +29,13 @@ interface ContentChunk {
   audioTranscription?: string;
 }
 
+interface TrainingExample {
+  messages: {
+    role: "system" | "user" | "assistant";
+    content: string;
+  }[];
+}
+
 async function downloadFile(url: string): Promise<Buffer> {
   const response = await axios.get<ArrayBuffer>(url, {
     responseType: "arraybuffer",
@@ -555,5 +562,137 @@ ${content}`;
       console.error("Full error object:", JSON.stringify(error, null, 2));
       throw error;
     }
+  }
+
+  async prepareTrainingData(
+    correctFile: string,
+    incorrectFile: string
+  ): Promise<string> {
+    const correctData = await fs.readFile(correctFile, "utf-8");
+    const incorrectData = await fs.readFile(incorrectFile, "utf-8");
+
+    const trainingExamples: TrainingExample[] = [];
+
+    // Process correct examples
+    correctData
+      .split("\n")
+      .filter((line) => line.trim())
+      .forEach((line) => {
+        trainingExamples.push({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a pattern validator that determines if number sequences follow the correct pattern.",
+            },
+            {
+              role: "user",
+              content: line,
+            },
+            {
+              role: "assistant",
+              content: "valid",
+            },
+          ],
+        });
+      });
+
+    // Process incorrect examples
+    incorrectData
+      .split("\n")
+      .filter((line) => line.trim())
+      .forEach((line) => {
+        trainingExamples.push({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a pattern validator that determines if number sequences follow the correct pattern.",
+            },
+            {
+              role: "user",
+              content: line,
+            },
+            {
+              role: "assistant",
+              content: "invalid",
+            },
+          ],
+        });
+      });
+
+    // Convert to JSONL format
+    const jsonl = trainingExamples
+      .map((example) => JSON.stringify(example))
+      .join("\n");
+
+    // Save JSONL file
+    const trainingFile = path.join(__dirname, "../../temp/training_data.jsonl");
+    await fs.writeFile(trainingFile, jsonl);
+
+    return trainingFile;
+  }
+
+  async createFineTuningJob(trainingFile: string): Promise<string> {
+    // Upload the training file
+    const file = await this.openai.files.create({
+      file: createReadStream(trainingFile),
+      purpose: "fine-tune",
+    });
+
+    // Create fine-tuning job
+    const fineTuningJob = await this.openai.fineTuning.jobs.create({
+      training_file: file.id,
+      model: "gpt-3.5-turbo",
+      suffix: "pattern-validator",
+    });
+
+    return fineTuningJob.id;
+  }
+
+  async getFineTuningStatus(jobId: string) {
+    const job = await this.openai.fineTuning.jobs.retrieve(jobId);
+    return job.status;
+  }
+
+  async trainPatternModel(
+    correctFile: string,
+    incorrectFile: string
+  ): Promise<string> {
+    const trainingFile = await this.prepareTrainingData(
+      correctFile,
+      incorrectFile
+    );
+
+    const jobId = await this.createFineTuningJob(trainingFile);
+
+    // Clean up training file
+    await fs.unlink(trainingFile);
+
+    return jobId;
+  }
+
+  async verifyPattern(data: string, modelId: string): Promise<boolean> {
+    const response = await this.openai.chat.completions.create({
+      model: modelId, // Use the fine-tuned model
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a pattern validator that determines if number sequences follow the correct pattern.",
+        },
+        {
+          role: "user",
+          content: data,
+        },
+      ],
+    });
+
+    return response.choices[0].message.content === "valid";
+  }
+
+  async getFineTuningJobDetails(jobId: string) {
+    const job = await this.openai.fineTuning.jobs.retrieve(jobId);
+    return job;
   }
 }

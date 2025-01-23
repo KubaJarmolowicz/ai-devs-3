@@ -15,6 +15,7 @@ import { runDatabase } from "./tasks/database";
 import { runLoop } from "./tasks/loop";
 import { runConnections } from "./tasks/connections";
 import { runPhotos } from "./tasks/photos";
+import { runResearch } from "./tasks/research";
 dotenv.config();
 
 async function main() {
@@ -35,7 +36,8 @@ async function main() {
     //await runDatabase();
     //await runLoop();
     //await runConnections();
-    await runPhotos();
+    //await runPhotos();
+    await runResearch();
   } catch (error) {
     console.error("Error data:", error);
   }
