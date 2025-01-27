@@ -17,6 +17,7 @@ import { runConnections } from "./tasks/connections";
 import { runPhotos } from "./tasks/photos";
 import { runResearch } from "./tasks/research";
 import { runWebScrapper } from "./tasks/softo";
+import { runNotes } from "./tasks/notes";
 dotenv.config();
 
 async function main() {
@@ -39,7 +40,8 @@ async function main() {
     //await runConnections();
     //await runPhotos();
     //await runResearch();
-    await runWebScrapper();
+    //await runWebScrapper();
+    await runNotes();
   } catch (error) {
     console.error("Error data:", error);
   }

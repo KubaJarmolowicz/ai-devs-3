@@ -16,17 +16,24 @@
     "@qdrant/js-client-rest": "^1.12.0",
     "@types/jsdom": "^21.1.7",
     "axios": "^1.7.7",
+    "canvas": "^3.1.0",
     "dotenv": "^16.4.5",
     "jsdom": "^26.0.0",
     "neo4j-driver": "^5.27.0",
     "openai": "^4.71.1",
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^2.16.105",
     "puppeteer": "^23.11.1",
+    "sharp": "^0.33.5",
+    "tesseract.js": "^6.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",
     "@types/node": "^22.9.0",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/pdfjs-dist": "^2.10.377",
     "@types/puppeteer": "^5.4.7"
   }
 }
